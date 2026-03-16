@@ -15,7 +15,7 @@ API desenvolvida com **FastAPI** utilizando **MongoDB** como banco de dados.
 # Clonar o repositório
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/washingtonjnr/leads-api
 cd leads-api
 ```
 
