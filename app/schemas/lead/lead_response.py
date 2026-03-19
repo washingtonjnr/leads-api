@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
+
 from app.utils.date import format_date
 
 class LeadResponse(BaseModel):

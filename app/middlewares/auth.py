@@ -60,6 +60,6 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
     def _unauthorized(self, message: str) -> JSONResponse:
         return JSONResponse(
-            content={"detail": message},
+            content={ "data": None, "success": False, "message": message },
             status_code=401,
         )

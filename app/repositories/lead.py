@@ -1,5 +1,3 @@
-from motor.motor_asyncio import AsyncIOMotorDatabase
-
 from app.models.lead import Lead
 from app.repositories.base import BaseRepository
 
