@@ -5,7 +5,7 @@ from starlette import status
 from starlette.exceptions import HTTPException
 
 from app.repositories.base import BaseRepository
-from app.schemas.pagination_response import PaginatedResponse
+from app.schemas.pagination.pagination_response import PaginatedResponse
 
 ModelType = TypeVar("ModelType", bound=BaseModel)
 ResponseType = TypeVar("ResponseType", bound=BaseModel)

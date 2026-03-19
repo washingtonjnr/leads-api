@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 from typing import Optional
 from uuid import uuid4
 
-from bson import ObjectId
 from pydantic import BaseModel, ConfigDict, Field 
 
 

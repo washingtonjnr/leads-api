@@ -2,10 +2,12 @@ from app.core.database import get_database
 
 from . import (
     create_leads_indexes,
+    create_users_indexes,
 )
 
 MIGRATIONS = [
     create_leads_indexes,
+    create_users_indexes,
 ]
 
 async def run_migrations():

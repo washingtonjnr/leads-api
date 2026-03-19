@@ -2,9 +2,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from app.services.lead import LeadService
+
 from app.schemas.lead.lead_response import LeadResponse
 from app.schemas.lead.lead_request import LeadCreateSchema
-from app.schemas.pagination_response import PaginatedResponse
+from app.schemas.pagination.pagination_response import PaginatedResponse
 
 from app.dependencies.lead import get_lead_service
 from app.dependencies.pagination import get_pagination

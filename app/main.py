@@ -6,6 +6,7 @@ from app.core.database import connect_to_mongo, close_mongo_connection
 from app.migrations.runner import run_migrations
 
 from app.controllers import routers
+from app.middlewares import middlewares
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
@@ -24,6 +25,9 @@ def create_app() -> FastAPI:
         description=settings.api_description,
         lifespan=lifespan 
     )
+
+    for middleware in middlewares:
+        app.add_middleware(middleware)
 
     for router in routers:
         app.include_router(router)

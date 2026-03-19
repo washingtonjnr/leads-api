@@ -11,6 +11,11 @@ class Settings(BaseSettings):
     api_version: str = "1.0.0"
     api_description: str = "API para gerenciamento de Leads"
 
+    jwt_secret_key: str
+    jwt_algorithm: str = "HS256"
+    jwt_access_expire_minutes: int = 30
+    jwt_refresh_expire_days: int = 1
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_prefix="APP_",
