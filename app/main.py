@@ -7,6 +7,7 @@ from app.migrations.runner import run_migrations
 
 from app.controllers import routers
 from app.middlewares import middlewares
+from app.core.openapi import configure_openapi
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
@@ -31,6 +32,8 @@ def create_app() -> FastAPI:
 
     for router in routers:
         app.include_router(router)
+
+    configure_openapi(app)
 
     return app
 
