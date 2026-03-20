@@ -12,7 +12,12 @@ def get_agent() -> BaseAgent:
 
     if provider == "gemini":
         from app.agents.gemini import GeminiAgent
-        
+
         return GeminiAgent()
 
-    raise ValueError(f"Unknown AI provider: '{provider}'. Valid options: anthropic, gemini")
+    if provider == "groc":
+        from app.agents.groc import GroqAgent
+
+        return GroqAgent()
+
+    raise ValueError(f"Unknown AI provider: '{provider}'. Valid options: anthropic, gemini, ollama, groc")

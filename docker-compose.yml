@@ -24,6 +24,7 @@ services:
       APP_MONGODB_URL: mongodb://mongo:27017
       ANTHROPIC_API_KEY: ${CLAUDE_API_KEY}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GROQ_API_KEY: ${GROQ_API_KEY}
     depends_on:
       - mongo
     volumes:
