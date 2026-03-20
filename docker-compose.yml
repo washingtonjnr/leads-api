@@ -28,5 +28,17 @@ services:
       - .:/api
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: ngrok
+    restart: unless-stopped
+    command: http code:8000
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    ports:
+      - "4040:4040"
+    depends_on:
+      - code
+
 volumes:
   mongo_data:

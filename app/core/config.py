@@ -16,6 +16,14 @@ class Settings(BaseSettings):
     jwt_access_expire_minutes: int = 30
     jwt_refresh_expire_days: int = 1
 
+    jira_url: str
+    jira_email: str
+    jira_api_token: str
+    jira_webhook_secret: str = ""
+    jira_timeout: int = 10
+    
+    ngrok_authtoken: str
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_prefix="APP_",

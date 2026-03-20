@@ -15,6 +15,7 @@ EXEMPT_PATHS: set[str] = {
     "/login",
     "/refresh",
     "/register",
+    "/webhook/jira",
 }
 
 class AuthMiddleware(BaseHTTPMiddleware):
