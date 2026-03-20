@@ -2,6 +2,7 @@ from app.providers.jira import JiraProvider
 from app.schemas.jira.webhook_payload import JiraWebhookPayload
 
 from app.utils.parser import parse_jira_description
+from app.jobs.jira import build_task
 
 TODO_COLUMN = "To-do"
 
@@ -40,7 +41,5 @@ class JiraService:
         fields = issue["fields"]
         description = parse_jira_description(fields.get("description") or {})
 
-        print(f"[jira] summary: {fields['summary']}")
-        print(f"[jira] description:\n{description}")
-
+        await build_task(fields['summary'], description)
         

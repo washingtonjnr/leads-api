@@ -21,13 +21,14 @@ class Settings(BaseSettings):
     jira_api_token: str
     jira_webhook_secret: str = ""
     jira_timeout: int = 10
-    
-    ngrok_authtoken: str
 
+    ai_provider: str
+    
     model_config = SettingsConfigDict(
         env_file=".env",
         env_prefix="APP_",
-        case_sensitive=False
+        case_sensitive=False,
+        extra="ignore"
     )
 
 settings = Settings()

@@ -3,7 +3,9 @@
     "allow": [
       "Bash(venv/Scripts/pip install:*)",
       "Bash(python:*)",
-      "Bash(pip show:*)"
+      "Bash(pip show:*)",
+      "Bash(find C:Userswin-11Documentscredito-expresschallengesleads-api -not -path */venv/* -not -path */.pytest_cache/* -not -path */htmlcov/*)",
+      "Bash(xargs grep:*)"
     ]
   }
 }
