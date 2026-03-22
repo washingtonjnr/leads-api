@@ -1,5 +1,5 @@
 from fastapi import Query
-from app.schemas.pagination_request import PaginatedSchema
+from app.schemas.pagination.pagination_request import PaginatedSchema
 
 def get_pagination(
     page: int = Query(1, ge=1, description="Page number"),

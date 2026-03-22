@@ -6,6 +6,7 @@ from app.dependencies.dummy import get_dummy_provider
 
 def get_lead_repository():
     db = get_database()
+    
     return LeadRepository(db)
 
 def get_lead_service():

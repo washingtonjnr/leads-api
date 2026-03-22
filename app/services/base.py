@@ -1,11 +1,11 @@
 from math import ceil
 from typing import Generic, TypeVar, List, Optional, Type
 from pydantic import BaseModel
-from starlette import status
-from starlette.exceptions import HTTPException
 
 from app.repositories.base import BaseRepository
-from app.schemas.pagination_response import PaginatedResponse
+from app.schemas.pagination.pagination_response import PaginatedResponse
+
+from app.exceptions.base import AppException
 
 ModelType = TypeVar("ModelType", bound=BaseModel)
 ResponseType = TypeVar("ResponseType", bound=BaseModel)
@@ -82,9 +82,6 @@ class BaseService(Generic[ModelType, ResponseType]):
         document = await self.repository.find_by_external_id(id)
         
         if not document:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Not found"
-            )
+            raise AppException("Not found", status_code=404)
         
         return document
