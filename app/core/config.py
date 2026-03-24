@@ -24,8 +24,8 @@ class Settings(BaseSettings):
 
     ai_provider: str
 
-    ollama_base_url: str = "http://localhost:11434"
-    ollama_model: str = "llama3.2"
+    use_n8n: bool
+    n8n_webhook_url: str
     
     model_config = SettingsConfigDict(
         env_file=".env",

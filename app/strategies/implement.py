@@ -1,6 +1,8 @@
 from app.agents import get_agent
 
-def build_prompt(title: str, description: str) -> str:
+from app.strategies.base import BaseStrategy
+
+def _build_prompt(title: str, description: str) -> str:
     try:
         with open("docs/ARCHITECTURE.md", "r") as f:
             architecture = f.read()
@@ -20,8 +22,10 @@ def build_prompt(title: str, description: str) -> str:
         Read the codebase, understand the context, and implement the requested changes.
     """.strip()
 
-
-async def build_task(title: str, description: str) -> dict:
-    agent = get_agent()
-    
-    return await agent.build_task(build_prompt(title, description))
+class ImplementTaskStrategy(BaseStrategy):
+    async def run(self, issue_key: str, summary: str, description: str) -> dict:
+        agent = get_agent()
+        
+        await agent.build_task(_build_prompt(summary, description))
+        
+        return {"status": "job_dispatched", "issue": issue_key}

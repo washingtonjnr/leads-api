@@ -1,0 +1,155 @@
+{
+  "name": "Jira Webhook Router",
+  "active": true,
+  "nodes": [
+    {
+      "id": "node-webhook",
+      "name": "Jira Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "parameters": {
+        "path": "jira",
+        "httpMethod": "POST",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-extract",
+      "name": "Extract Status",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300],
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body;\nconst changelog = body.changelog?.items || [];\nconst statusChange = changelog.find(i => i.field === 'status');\nconst fields = body.issue?.fields || {};\nconst desc = fields.description;\nconst descText = typeof desc === 'object' && desc !== null\n  ? (desc.content || []).flatMap(b => b.content || []).map(t => t.text || '').join(' ')\n  : (desc || 'No description');\nreturn [{\n  json: {\n    event: body.webhookEvent,\n    status: statusChange?.toString || null,\n    issueKey: body.issue?.key,\n    summary: fields.summary,\n    description: descText,\n    rawBody: body\n  }\n}];"
+      }
+    },
+    {
+      "id": "node-switch",
+      "name": "Route by Status",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [720, 300],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": false },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "Under analysis",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "under_analysis"
+            }
+          ]
+        },
+        "fallbackOutput": "extra"
+      }
+    },
+    {
+      "id": "node-fastapi",
+      "name": "Forward to FastAPI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 160],
+      "parameters": {
+        "method": "POST",
+        "url": "http://code:8000/webhook/jira",
+        "sendBody": true,
+        "contentType": "json",
+        "jsonBody": "={{ JSON.stringify($('Extract Status').first().json.rawBody) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-build-prompt",
+      "name": "Build Review Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 440],
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nreturn [{\n  json: {\n    issueKey: item.issueKey,\n    prompt: `You are an expert software engineer performing a code review for a Jira task.\\n\\n## Issue: ${item.issueKey}\\n## Title: ${item.summary}\\n\\n## Description:\\n${item.description}\\n\\nReview the codebase for this task. Check for:\\n- Bugs or logic errors\\n- Security vulnerabilities\\n- Code quality and readability\\n- Missing edge cases\\n- Suggestions for improvement\\n\\nBe specific and actionable.`\n  }\n}];"
+      }
+    },
+    {
+      "id": "node-claude",
+      "name": "Claude Code Review",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 440],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $env.ANTHROPIC_API_KEY }}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-6\",\n  \"max_tokens\": 4096,\n  \"system\": \"You are an expert software engineer performing a code review. Be concise, specific, and actionable.\",\n  \"messages\": [\n    { \"role\": \"user\", \"content\": {{ JSON.stringify($json.prompt) }} }\n  ]\n}",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-respond-review",
+      "name": "Respond - Review",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1440, 440],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"review_dispatched\",\n  \"issue\": \"{{ $('Build Review Prompt').first().json.issueKey }}\",\n  \"review\": {{ JSON.stringify($json.content[0].text) }}\n}"
+      }
+    },
+    {
+      "id": "node-respond-ignored",
+      "name": "Respond - Ignored",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [960, 580],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"status\": \"ignored\" }"
+      }
+    }
+  ],
+  "connections": {
+    "Jira Webhook": {
+      "main": [[{ "node": "Extract Status", "type": "main", "index": 0 }]]
+    },
+    "Extract Status": {
+      "main": [[{ "node": "Route by Status", "type": "main", "index": 0 }]]
+    },
+    "Route by Status": {
+      "main": [
+        [{ "node": "Forward to FastAPI", "type": "main", "index": 0 }],
+        [{ "node": "Build Review Prompt", "type": "main", "index": 0 }],
+        [{ "node": "Respond - Ignored", "type": "main", "index": 0 }]
+      ]
+    },
+    "Forward to FastAPI": {
+      "main": [[{ "node": "Respond - Todo", "type": "main", "index": 0 }]]
+    },
+    "Build Review Prompt": {
+      "main": [[{ "node": "Claude Code Review", "type": "main", "index": 0 }]]
+    },
+    "Claude Code Review": {
+      "main": [[{ "node": "Respond - Review", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

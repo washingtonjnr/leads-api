@@ -1,4 +1,4 @@
-    print("Hello world")    print("Hello world")from fastapi import FastAPI
+from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
 from app.core.config import settings

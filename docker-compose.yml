@@ -31,6 +31,25 @@ services:
       - .:/api
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      N8N_HOST: localhost
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      WEBHOOK_URL: http://localhost:5678
+      N8N_API_KEY: ${N8N_API_KEY}
+      N8N_WORKFLOW_CALLER_POLICY_DEFAULT_OPTION: any
+      N8N_DISABLE_WORKFLOW_LOCKING: "true"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      - code
+
   ngrok:
     image: ngrok/ngrok:latest
     container_name: ngrok
@@ -45,3 +64,4 @@ services:
 
 volumes:
   mongo_data:
+  n8n_data:

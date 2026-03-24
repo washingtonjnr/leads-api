@@ -22,7 +22,7 @@ def verify_signature(secret: str, body: bytes, signature: str) -> bool:
 
     return hmac.compare_digest(expected, signature)
 
-# TODO: adicionar accountId do JIRA na env e setar na url do endpoint
+# TODO: adicionar accountId do JIRA na env, para assim saber qual foi o usuário que puxou o card
 @router.post("/jira")
 async def jira_webhook(
     request: Request,
